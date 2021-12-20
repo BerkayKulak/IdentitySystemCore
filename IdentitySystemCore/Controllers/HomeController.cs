@@ -183,11 +183,36 @@ namespace IdentitySystemCore.Controllers
             {
                 // userManager.GeneratePasswordResetTokenAsync(user) bunu yaptığımız zaman
                 // user bilgilerinden oluşan bir tane token oluşuyor.
+                // Token içerisinde SecurityStamp(kullanıcının önemli parametresi(username,password) değiştiği zaman bunu değiştiriyoruz)
+                // token = id,email,securitystamp gibi değerler var.
+
                 string passwordResetToken = userManager.GeneratePasswordResetTokenAsync(user).Result;
+
+                // kullanıcı linke tıkladığı zaman burdaki view ' a gelicek
+                string passwordResetLink = Url.Action("ResetPasswordConfirm", "Home", new
+                {
+
+                    userId = user.Id,
+                    token = passwordResetToken
+
+                }, HttpContext.Request.Scheme);
+
+
+                // www.bıdıbıdı.com/Home/ResetPasswordConfirm?userId = asdfd&token = adgsg
+
+                Helper.PasswordReset.PasswordResetSendEmail(passwordResetLink);
+
+                ViewBag.status = "successfull";
+
+            }
+            else
+            {
+                ModelState.AddModelError("", "Sistemde kayıtlı email adresi bulunamamıştır.");
+
             }
 
 
-            return View();
+            return View(passwordResetViewModel);
         }
 
 
