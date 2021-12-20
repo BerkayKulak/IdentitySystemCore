@@ -36,40 +36,7 @@ namespace IdentitySystemCore
             });
 
 
-            CookieBuilder cookieBuilder = new CookieBuilder();
-            cookieBuilder.Name = "MyBlog";
-            // kötü niyetli kullanýcýlar client side tarafta benim cookime eriþemez.
-            // http isteði üzerinden cookie bilgisini almak istiyorum.
-            cookieBuilder.HttpOnly = false;
-            // süre belirtelim. ne kadar süre kullanýcýnýn bilgisayarýnda kalsýn
-            // cookie 60 gün boyunca kalacak, login olduktan sonra 60 gün gezinebilecek. sonra tekrar login olamsý lazým
-           
-            // sadece benim sitem üzerinden gelen cookie ayarlarýný al
-            cookieBuilder.SameSite = SameSiteMode.Lax;
-            // always dersek browser sizin cookiesini , sadece bir https üzerinden bir istek gelmiþse gönderiyor.
-            // SameAsRequest dersek, eðer bu cookie bilgisi http üzerinden gelmiþse http den gönderiyor
-            // https derseniz htpps üzerinden gönderir
-            // None dersek isterse https olsun ister http olsun hepsini http üzeirnden getiriyor.
-            cookieBuilder.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-
-            services.ConfigureApplicationCookie(opts =>
-            {
-                opts.ExpireTimeSpan = System.TimeSpan.FromDays(60);
-                // kullanýcý üye olmadan, üyelerin eriþebildiði bir sayfaya týklarsa kullanýcýyý login sayfasýna yönlendiririz.
-                opts.LoginPath = new PathString("/Home/Login");
-
-                opts.Cookie = cookieBuilder;
-
-                // kullanýcýyýa 60 gün vermiþtik ya hani, eðer siz SlidingExpiration süresini true yaparsanýz.
-                // 60'ýn yarýsýný geçtikten sonra eðer siteye istek yaparsa tekrar bi 60 gün daha eklicek.
-                opts.SlidingExpiration = true;
-
-            });
-
-
-
-
-
+            
             //IdentityUseri' App user olarak miras aldýk.
             // IdentityRole ile miras alma iþlemi gerçekleþtirmediðimizden kullanýyoruz.
             //IdentityUseri' App user olarak miras aldýk.
@@ -90,7 +57,38 @@ namespace IdentitySystemCore
             }).AddPasswordValidator<CustomPasswordValidator>().
                 AddUserValidator<CustomUserValidator>().AddErrorDescriber<CustomIdentityErrorDescriber>().
                 AddEntityFrameworkStores<AppIdentityDbContext>();
-            
+
+
+            CookieBuilder cookieBuilder = new CookieBuilder();
+            cookieBuilder.Name = "MyBlog";
+            // kötü niyetli kullanýcýlar client side tarafta benim cookime eriþemez.
+            // http isteði üzerinden cookie bilgisini almak istiyorum.
+            cookieBuilder.HttpOnly = false;
+            // süre belirtelim. ne kadar süre kullanýcýnýn bilgisayarýnda kalsýn
+            // cookie 60 gün boyunca kalacak, login olduktan sonra 60 gün gezinebilecek. sonra tekrar login olamsý lazým
+
+            // sadece benim sitem üzerinden gelen cookie ayarlarýný al
+            cookieBuilder.SameSite = SameSiteMode.Lax;
+            // always dersek browser sizin cookiesini , sadece bir https üzerinden bir istek gelmiþse gönderiyor.
+            // SameAsRequest dersek, eðer bu cookie bilgisi http üzerinden gelmiþse http den gönderiyor
+            // https derseniz htpps üzerinden gönderir
+            // None dersek isterse https olsun ister http olsun hepsini http üzeirnden getiriyor.
+            cookieBuilder.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+
+            services.ConfigureApplicationCookie(opts =>
+            {
+                
+                // kullanýcý üye olmadan, üyelerin eriþebildiði bir sayfaya týklarsa kullanýcýyý login sayfasýna yönlendiririz.
+                opts.LoginPath = new PathString("/Home/Login");
+
+                opts.Cookie = cookieBuilder;
+
+                // kullanýcýyýa 60 gün vermiþtik ya hani, eðer siz SlidingExpiration süresini true yaparsanýz.
+                // 60'ýn yarýsýný geçtikten sonra eðer siteye istek yaparsa tekrar bi 60 gün daha eklicek.
+                opts.SlidingExpiration = true;
+                opts.ExpireTimeSpan = System.TimeSpan.FromDays(60);
+            });
+
 
             services.AddMvc();
         }
