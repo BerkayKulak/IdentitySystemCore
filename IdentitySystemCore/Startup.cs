@@ -8,6 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentitySystemCore.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace IdentitySystemCore
 {
@@ -23,6 +26,15 @@ namespace IdentitySystemCore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // istemiþ olduðu sýnýfýn bir nesne örneðini oluþturur.
+            services.AddDbContext<AppIdentityDbContext>(opts =>
+            {// appsettings.jsondan geliyor = "ConnectionStrings:DefaultConnectionString"
+                opts.UseSqlServer(Configuration["ConnectionStrings:DefaultConnectionString"]);
+
+            });
+            //IdentityUseri' App user olarak miras aldýk.
+            // IdentityRole ile miras alma iþlemi gerçekleþtirmediðimizden kullanýyoruz.
+            services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppIdentityDbContext>();
             services.AddMvc();
         }
 
@@ -51,7 +63,8 @@ namespace IdentitySystemCore
 
             app.UseRouting();
 
-            //app.UseAuthorization();
+            app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
