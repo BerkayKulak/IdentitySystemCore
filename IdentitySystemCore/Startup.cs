@@ -43,7 +43,7 @@ namespace IdentitySystemCore
             cookieBuilder.HttpOnly = false;
             // süre belirtelim. ne kadar süre kullanýcýnýn bilgisayarýnda kalsýn
             // cookie 60 gün boyunca kalacak, login olduktan sonra 60 gün gezinebilecek. sonra tekrar login olamsý lazým
-            cookieBuilder.Expiration = System.TimeSpan.FromDays(60);
+           
             // sadece benim sitem üzerinden gelen cookie ayarlarýný al
             cookieBuilder.SameSite = SameSiteMode.Lax;
             // always dersek browser sizin cookiesini , sadece bir https üzerinden bir istek gelmiþse gönderiyor.
@@ -54,6 +54,7 @@ namespace IdentitySystemCore
 
             services.ConfigureApplicationCookie(opts =>
             {
+                opts.ExpireTimeSpan = System.TimeSpan.FromDays(60);
                 // kullanýcý üye olmadan, üyelerin eriþebildiði bir sayfaya týklarsa kullanýcýyý login sayfasýna yönlendiririz.
                 opts.LoginPath = new PathString("/Home/Login");
 
