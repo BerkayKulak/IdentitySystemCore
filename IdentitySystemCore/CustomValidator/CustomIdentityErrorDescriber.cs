@@ -18,6 +18,15 @@ namespace IdentitySystemCore.CustomValidator
             };
         }
 
+        public override IdentityError DuplicateUserName(string userName)
+        {
+            return new IdentityError()
+            {
+                Code = "DuplicateUserName",
+                Description = $"Bu {userName} kullanılmaktadır.."
+            };
+        }
+
         public override IdentityError DuplicateEmail(string email)
         {
             return new IdentityError()
