@@ -37,35 +37,68 @@ namespace IdentitySystemCore.Controllers
 
             if (ModelState.IsValid)
             {
-                // kullanıcının emailine bakıyorum.
                 AppUser user = await userManager.FindByEmailAsync(userlogin.Email);
 
                 if (user != null)
                 {
-                    // sistemde eski bir cookie varsa silinsin. kullanıcı tekrar login oluyor tekrar oluşur.
-                    // isPersistent = true yaparsak cookie ömrü belirleriz. onuda startupda 60 gün olarak belirledik.
-                    // LockoutonFailure kullanıcı şifreyi durmadan yanlış girerse kitlesin mi demek
+                    // öncelikle kullanıcı var ve kilitli olup olmadığını anlamam lazım
+                    if (await userManager.IsLockedOutAsync(user))
+                    {
+                        ModelState.AddModelError("", "Hesabınız bir süreliğine kilitlenmiştir. Lütfen daha sonra tekrar deneyiniz.");
+                        return View(userlogin);
+                    }
+
                     await signInManager.SignOutAsync();
+
+                    //userlogin.RememberMe = cookienin gerçekten geçerli olup olmadığını kontrol edicez. checkboxtan kontrol edicez. işaretlersem true olur.
+                    // benim startuptaki 60 gün geçerli olacak
                     Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(user, userlogin.Password, userlogin.RememberMe, false);
+
                     if (result.Succeeded)
                     {
-                        if (result.Succeeded)
+                        // başarılı giriş yaptığımız için AccessFailedCount değerini 0 lıcak
+                        await userManager.ResetAccessFailedCountAsync(user);
+
+                        if (TempData["ReturnUrl"] != null)
                         {
-                            if (TempData["ReturnUrl"] != null)
-                            {
-                                return Redirect(TempData["ReturnUrl"].ToString());
-                            }
-                            return RedirectToAction("Index", "Member");
+                            return Redirect(TempData["ReturnUrl"].ToString());
+                        }
+                        return RedirectToAction("Index", "Member");
+                    }
+                    else
+                    {
+                        // başarısız girişte 1 artıcak
+                        await userManager.AccessFailedAsync(user);
+
+
+
+                        // kaç başarısız giriş yaptı alır.
+                        int fail = await userManager.GetAccessFailedCountAsync(user);
+
+                        ModelState.AddModelError("", $"{fail} kez başarısız giriş.");
+
+                        if (fail == 3)
+                        {
+                            // kullanıcıyı 20 dakka kilitliyoruz
+                            await userManager.SetLockoutEndDateAsync(user, new System.DateTimeOffset(DateTime.Now.AddMinutes(20)));
+
+
+                            ModelState.AddModelError("", "Hesabınız 3 başarısız girişten dolayı 20 dakika süreyle kilitlenmiştir.");
+                        }
+
+                        else
+                        {
+                            ModelState.AddModelError("", "Email adresi veya şifre Yanlış");
+
                         }
 
 
-                        return RedirectToAction("Index", "Member");
                     }
 
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Geçersiz Email adresi veya şifresi");
+                    ModelState.AddModelError("", "Bu email adresine kayıtlı kullanıcı bulunamamıştır.");
                 }
             }
             return View(userlogin);
@@ -133,6 +166,28 @@ namespace IdentitySystemCore.Controllers
             // girdiği değerlerle birlikte tekrar göngderiyorum. hata varsa hatalarıda gönderiyorum.
             return View(userViewModel);
 
+        }
+
+        public IActionResult ResetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ResetPassword(PasswordResetViewModel passwordResetViewModel)
+        {
+            // benim veritabanımda kayıtlı kullanıcı var mı onu tespit edelim önce
+            AppUser user = userManager.FindByEmailAsync(passwordResetViewModel.Email).Result;
+
+            if (user != null)
+            {
+                // userManager.GeneratePasswordResetTokenAsync(user) bunu yaptığımız zaman
+                // user bilgilerinden oluşan bir tane token oluşuyor.
+                string passwordResetToken = userManager.GeneratePasswordResetTokenAsync(user).Result;
+            }
+
+
+            return View();
         }
 
 
