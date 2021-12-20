@@ -12,15 +12,22 @@ namespace IdentitySystemCore.CustomValidator
         public Task<IdentityResult> ValidateAsync(UserManager<AppUser> manager, AppUser user, string password)
         {
             List<IdentityError> errors = new List<IdentityError>();
+            
 
             if (password.ToLower().Contains(user.UserName.ToLower()))
             {
-                errors.Add(new IdentityError()
+                // kullanıcının email adresi bir username içermiyorsa bu hatayı göster.
+                if (!user.Email.Contains(user.UserName))
                 {
-                    Code = "PasswordContainsUserName",
-                    Description = "şifre alanı kullanıcı adı içeremez"
+                    errors.Add(new IdentityError()
+                    {
+                        Code = "PasswordContainsUserName",
+                        Description = "şifre alanı kullanıcı adı içeremez"
 
-                });
+                    });
+                }
+
+
             }
 
             if (password.ToLower().Contains("1234"))
