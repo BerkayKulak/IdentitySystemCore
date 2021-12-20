@@ -11,12 +11,14 @@ namespace IdentitySystemCore.Controllers
 {
     public class HomeController : Controller
     {
-        public HomeController(UserManager<AppUser> userManager)
+        public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
         {
             this.userManager = userManager;
+            this.signInManager = signInManager;
         }
 
         public UserManager<AppUser> userManager { get; }
+        public SignInManager<AppUser> signInManager { get; }
 
         public IActionResult Index()
         {
@@ -25,6 +27,37 @@ namespace IdentitySystemCore.Controllers
 
         public IActionResult LogIn()
         {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LogIn(LoginViewModel userlogin)
+        {
+
+            if (ModelState.IsValid)
+            {
+                // kullanıcının emailine bakıyorum.
+                AppUser user = await userManager.FindByEmailAsync(userlogin.Email);
+
+                if (user != null)
+                {
+                    // sistemde eski bir cookie varsa silinsin. kullanıcı tekrar login oluyor tekrar oluşur.
+                    // isPersistent = true yaparsak cookie ömrü belirleriz. onuda startupda 60 gün olarak belirledik.
+                    // LockoutonFailure kullanıcı şifreyi durmadan yanlış girerse kitlesin mi demek
+                    await signInManager.SignOutAsync();
+                    Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(user, userlogin.Password, false, false);
+
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction("Index", "Member");
+                    }
+
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Geçersiz Email adresi veya şifresi");
+                }
+            }
             return View();
         }
 
