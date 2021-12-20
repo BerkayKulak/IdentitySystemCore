@@ -25,8 +25,9 @@ namespace IdentitySystemCore.Controllers
             return View();
         }
 
-        public IActionResult LogIn()
+        public IActionResult LogIn(string ReturnUrl)
         {
+            TempData["ReturnUrl"] = ReturnUrl; // actionlar içinde veriler tutabiliriz. sayfalar arası
             return View();
         }
 
@@ -45,10 +46,19 @@ namespace IdentitySystemCore.Controllers
                     // isPersistent = true yaparsak cookie ömrü belirleriz. onuda startupda 60 gün olarak belirledik.
                     // LockoutonFailure kullanıcı şifreyi durmadan yanlış girerse kitlesin mi demek
                     await signInManager.SignOutAsync();
-                    Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(user, userlogin.Password, false, false);
-
+                    Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(user, userlogin.Password, userlogin.RememberMe, false);
                     if (result.Succeeded)
                     {
+                        if (result.Succeeded)
+                        {
+                            if (TempData["ReturnUrl"] != null)
+                            {
+                                return Redirect(TempData["ReturnUrl"].ToString());
+                            }
+                            return RedirectToAction("Index", "Member");
+                        }
+
+
                         return RedirectToAction("Index", "Member");
                     }
 
@@ -58,7 +68,7 @@ namespace IdentitySystemCore.Controllers
                     ModelState.AddModelError("", "Geçersiz Email adresi veya şifresi");
                 }
             }
-            return View();
+            return View(userlogin);
         }
 
 
