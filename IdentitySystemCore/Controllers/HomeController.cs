@@ -168,6 +168,28 @@ namespace IdentitySystemCore.Controllers
 
         }
 
+        public IActionResult ResetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ResetPassword(PasswordResetViewModel passwordResetViewModel)
+        {
+            // benim veritabanımda kayıtlı kullanıcı var mı onu tespit edelim önce
+            AppUser user = userManager.FindByEmailAsync(passwordResetViewModel.Email).Result;
+
+            if (user != null)
+            {
+                // userManager.GeneratePasswordResetTokenAsync(user) bunu yaptığımız zaman
+                // user bilgilerinden oluşan bir tane token oluşuyor.
+                string passwordResetToken = userManager.GeneratePasswordResetTokenAsync(user).Result;
+            }
+
+
+            return View();
+        }
+
 
     }
 }
