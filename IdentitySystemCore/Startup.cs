@@ -50,7 +50,9 @@ namespace IdentitySystemCore
                 opts.Password.RequireUppercase = false; // büyük harf istemiyorum.
                 opts.Password.RequireDigit = false;// sayýsal karakter de istemiyorum 
 
-            }).AddPasswordValidator<CustomPasswordValidator>().AddUserValidator<CustomUserValidator>().AddEntityFrameworkStores<AppIdentityDbContext>();
+            }).AddPasswordValidator<CustomPasswordValidator>().
+                AddUserValidator<CustomUserValidator>().AddErrorDescriber<CustomIdentityErrorDescriber>().
+                AddEntityFrameworkStores<AppIdentityDbContext>();
             
 
             services.AddMvc();
