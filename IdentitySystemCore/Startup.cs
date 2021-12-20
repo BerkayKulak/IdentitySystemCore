@@ -34,7 +34,7 @@ namespace IdentitySystemCore
             });
             //IdentityUseri' App user olarak miras aldýk.
             // IdentityRole ile miras alma iþlemi gerçekleþtirmediðimizden kullanýyoruz.
-            services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppIdentityDbContext>();
+            services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<AppIdentityDbContext>();
             services.AddMvc();
         }
 
