@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace IdentitySystemCore.Models
 {
-    public class AppRole
+    public class AppRole : IdentityRole
     {
+        
+
     }
 }

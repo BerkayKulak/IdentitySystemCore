@@ -9,6 +9,7 @@ namespace IdentitySystemCore.Models
 
     public class AppUser : IdentityUser
     {
+       
 
     }
 }
