@@ -1,13 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentitySystemCore.Enums;
 using IdentitySystemCore.Models;
 using IdentitySystemCore.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace IdentitySystemCore.Controllers
 {
@@ -49,27 +53,55 @@ namespace IdentitySystemCore.Controllers
             // UserViewModel, AppUser'in kullanıcıya yansıyan tarafıydı
             AppUser user = userManager.FindByNameAsync(User.Identity.Name).Result;
 
+
+
             UserViewModel userViewModel = user.Adapt<UserViewModel>();
+
+            ViewBag.Gender = new SelectList(Enum.GetNames(typeof(Gender)));
 
             return View(userViewModel);// kullanıcı bilgileri güncellicek bu yüzden UserViewModel'i dolu olarak gönderiyorum.
         }
-
         [HttpPost]
-        public async Task<IActionResult> UserEdit(UserViewModel userViewModel)
+        public async Task<IActionResult> UserEdit(UserViewModel userViewModel, IFormFile userPicture)
         {
             ModelState.Remove("Password");
+            ViewBag.Gender = new SelectList(Enum.GetNames(typeof(Gender)));
             if (ModelState.IsValid)
             {
                 AppUser user = await userManager.FindByNameAsync(User.Identity.Name);
+
+                if (userPicture != null && userPicture.Length > 0)
+                {
+                    //GetExtension, userPicture'in uzantısını alır jpg,png gibi
+                    //Guid.NewGuid().ToString() yaparak isim oluşturuyoruz rastgele
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(userPicture.FileName);
+
+                    // wwwroot'un yolunu alıyorum.
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/UserPicture", fileName);
+
+                    using (var stream = new FileStream(path, FileMode.Create))
+                    {
+                        await userPicture.CopyToAsync(stream);
+
+                        // statik dosyaların hepsi wwwroot içinde olması gerekiyor.
+                        user.Picture = "/UserPicture/" + fileName;
+                    }
+
+                }
+
+
 
                 // güncelliyoruz.
                 user.UserName = userViewModel.UserName;
                 user.Email = userViewModel.Email;
                 user.PhoneNumber = userViewModel.PhoneNumber;
+                user.City = userViewModel.City;
+                user.BirthDay = userViewModel.BirthDay;
+                user.Gender = (int)userViewModel.Gender;
 
                 // startuptaki hatalar geçerli. burdaki hataları Update yaparken bir hata ile karşılaşırsa
                 // bunu IdentityResult  resulta atacak
-                // UpdateAsync hem custom validationları hem de startup tarafındaki validationları içeriyior
+                // UpdateAsync hem custom validationları hem de startup tarafındaki validationları içeriyior//
                 IdentityResult result = await userManager.UpdateAsync(user);
 
                 if (result.Succeeded)
