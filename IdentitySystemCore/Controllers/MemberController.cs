@@ -17,14 +17,12 @@ namespace IdentitySystemCore.Controllers
 {
 
     //[Authorize]// membercontrollere sadece üyeler erişecek.
-    public class MemberController : Controller
+    public class MemberController : BaseController
     {
-        public UserManager<AppUser> userManager { get; }
-        public SignInManager<AppUser> signInManager { get; }
-        public MemberController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+
+        public MemberController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager) : base(userManager, signInManager)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
+
         }
 
 
@@ -36,7 +34,7 @@ namespace IdentitySystemCore.Controllers
             //User.Identity.
 
 
-            AppUser user = userManager.FindByNameAsync(User.Identity.Name).Result;
+            AppUser user = CurrentUser;
             // userin içindeki propertylerden UserViewModel içerisindeki Propertyler ile eşleşenleri
             // userViewModel'e aktaracak
             UserViewModel userViewModel = user.Adapt<UserViewModel>();
@@ -51,7 +49,7 @@ namespace IdentitySystemCore.Controllers
         public IActionResult UserEdit()
         {
             // UserViewModel, AppUser'in kullanıcıya yansıyan tarafıydı
-            AppUser user = userManager.FindByNameAsync(User.Identity.Name).Result;
+            AppUser user = CurrentUser;
 
 
 
@@ -61,6 +59,8 @@ namespace IdentitySystemCore.Controllers
 
             return View(userViewModel);// kullanıcı bilgileri güncellicek bu yüzden UserViewModel'i dolu olarak gönderiyorum.
         }
+
+
         [HttpPost]
         public async Task<IActionResult> UserEdit(UserViewModel userViewModel, IFormFile userPicture)
         {
@@ -68,7 +68,7 @@ namespace IdentitySystemCore.Controllers
             ViewBag.Gender = new SelectList(Enum.GetNames(typeof(Gender)));
             if (ModelState.IsValid)
             {
-                AppUser user = await userManager.FindByNameAsync(User.Identity.Name);
+                AppUser user = CurrentUser;
 
                 if (userPicture != null && userPicture.Length > 0)
                 {
@@ -119,10 +119,7 @@ namespace IdentitySystemCore.Controllers
                 }
                 else
                 {
-                    foreach (var item in result.Errors)
-                    {
-                        ModelState.AddModelError("", item.Description);
-                    }
+                    AddModelError(result);
                 }
 
 
@@ -134,10 +131,12 @@ namespace IdentitySystemCore.Controllers
 
 
 
+
         public IActionResult PasswordChange()
         {
             return View();
         }
+
 
         [HttpPost]
         public IActionResult PasswordChange(PasswordChangeViewModel passwordChangeViewModel)
@@ -146,7 +145,7 @@ namespace IdentitySystemCore.Controllers
             if (ModelState.IsValid)
             {
                 // burdaki name değeri Cookie bilgisinden okuyor.
-                AppUser user = userManager.FindByNameAsync(User.Identity.Name).Result;
+                AppUser user = CurrentUser;
 
 
                 // eski şifresi doğru mu ilk bunu kontrol edelim.
@@ -172,16 +171,15 @@ namespace IdentitySystemCore.Controllers
 
                         // eğer SignOutAsync,PasswordSignInAsync  yapmasaydım IdentityApi 30 dakika içinde sistemden atıcak ve login sayfasına yönlendiricek.
 
+
+
                         ViewBag.success = "true";
 
 
                     }
                     else
                     {
-                        foreach (var item in result.Errors)
-                        {
-                            ModelState.AddModelError("", item.Description);
-                        }
+                        AddModelError(result);
                     }
 
                 }
@@ -202,6 +200,7 @@ namespace IdentitySystemCore.Controllers
         public void LogOut()
         {
             signInManager.SignOutAsync();
+
         }
     }
 }
