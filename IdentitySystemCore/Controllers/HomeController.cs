@@ -22,6 +22,11 @@ namespace IdentitySystemCore.Controllers
 
         public IActionResult Index()
         {
+            // kullanıcı login olmuşsa önceden bu sayfayı göster direk olarak
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Member");
+            }
             return View();
         }
 
