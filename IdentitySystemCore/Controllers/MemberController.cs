@@ -54,6 +54,54 @@ namespace IdentitySystemCore.Controllers
             return View(userViewModel);// kullanıcı bilgileri güncellicek bu yüzden UserViewModel'i dolu olarak gönderiyorum.
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UserEdit(UserViewModel userViewModel)
+        {
+            ModelState.Remove("Password");
+            if (ModelState.IsValid)
+            {
+                AppUser user = await userManager.FindByNameAsync(User.Identity.Name);
+
+                // güncelliyoruz.
+                user.UserName = userViewModel.UserName;
+                user.Email = userViewModel.Email;
+                user.PhoneNumber = userViewModel.PhoneNumber;
+
+                // startuptaki hatalar geçerli. burdaki hataları Update yaparken bir hata ile karşılaşırsa
+                // bunu IdentityResult  resulta atacak
+                // UpdateAsync hem custom validationları hem de startup tarafındaki validationları içeriyior
+                IdentityResult result = await userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    await userManager.UpdateSecurityStampAsync(user);
+
+                    // tekrar çıkış yaptı
+                    await signInManager.SignOutAsync();
+
+                    // true dememizin amacı cookie 60 gün geçerli olcak demek (60) günü belirtmiştik 
+
+                    await signInManager.SignInAsync(user, true);
+
+                    ViewBag.Success = "true";
+                }
+                else
+                {
+                    foreach (var item in result.Errors)
+                    {
+                        ModelState.AddModelError("", item.Description);
+                    }
+                }
+
+
+            }
+
+            return View(userViewModel);
+
+        }
+
+
+
         public IActionResult PasswordChange()
         {
             return View();
@@ -116,6 +164,12 @@ namespace IdentitySystemCore.Controllers
             //  ModelState.AddModelError("", "Eski şifreniz yanlış"); ile hataları ekledik
             // varsa bunları gösterebilmek için içine passwordChangeViewModel yazıyoruz.
             return View(passwordChangeViewModel);
+        }
+
+
+        public void LogOut()
+        {
+            signInManager.SignOutAsync();
         }
     }
 }

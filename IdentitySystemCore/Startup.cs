@@ -80,13 +80,14 @@ namespace IdentitySystemCore
                 
                 // kullanýcý üye olmadan, üyelerin eriþebildiði bir sayfaya týklarsa kullanýcýyý login sayfasýna yönlendiririz.
                 opts.LoginPath = new PathString("/Home/Login");
-
+                opts.LogoutPath = new PathString("/Member/LogOut");
                 opts.Cookie = cookieBuilder;
 
                 // kullanýcýyýa 60 gün vermiþtik ya hani, eðer siz SlidingExpiration süresini true yaparsanýz.
                 // 60'ýn yarýsýný geçtikten sonra eðer siteye istek yaparsa tekrar bi 60 gün daha eklicek.
                 opts.SlidingExpiration = true;
                 opts.ExpireTimeSpan = System.TimeSpan.FromDays(60);
+
             });
 
 
