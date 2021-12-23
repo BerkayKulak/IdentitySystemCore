@@ -44,6 +44,16 @@ namespace IdentitySystemCore.Controllers
             return View(userViewModel);
         }
 
+        public IActionResult UserEdit()
+        {
+            // UserViewModel, AppUser'in kullanıcıya yansıyan tarafıydı
+            AppUser user = userManager.FindByNameAsync(User.Identity.Name).Result;
+
+            UserViewModel userViewModel = user.Adapt<UserViewModel>();
+
+            return View(userViewModel);// kullanıcı bilgileri güncellicek bu yüzden UserViewModel'i dolu olarak gönderiyorum.
+        }
+
         public IActionResult PasswordChange()
         {
             return View();
