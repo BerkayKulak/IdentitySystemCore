@@ -88,6 +88,10 @@ namespace IdentitySystemCore
                 opts.SlidingExpiration = true;
                 opts.ExpireTimeSpan = System.TimeSpan.FromDays(60);
 
+                // eðer kullanýcý üye olduktan sonra, admin linkine týklarsa, editor rolüne sahip ama yönetici rolüne týklarsa 
+                // bu sayfaya eriþemediðiyle ilgili bir bilgi verilir. Eriþime yetkisi olmayan üye kullanýcýlarýn gideceði path olacak
+                opts.AccessDeniedPath = new PathString("/Member/AccessDenied");
+
             });
 
 
