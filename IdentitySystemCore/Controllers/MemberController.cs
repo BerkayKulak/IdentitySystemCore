@@ -202,5 +202,12 @@ namespace IdentitySystemCore.Controllers
             signInManager.SignOutAsync();
 
         }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+
     }
 }
