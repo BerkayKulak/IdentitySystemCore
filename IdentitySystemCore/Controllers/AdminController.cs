@@ -25,6 +25,11 @@ namespace IdentitySystemCore.Controllers
             return View();
         }
 
+        public IActionResult Users()
+        {
+            return View(userManager.Users.ToList());
+        }
+
         public IActionResult RoleCreate()
         {
             return View();
@@ -107,13 +112,79 @@ namespace IdentitySystemCore.Controllers
                 ModelState.AddModelError("", "Güncelleme işlemi başarısız oldu.");
             }
             return View(roleViewModel);
-
         }
 
-        public IActionResult Users()
+        public IActionResult RoleAssign(string id)
         {
-            return View(userManager.Users.ToList());
+            // idyi tempdata da saklıyoruz. id değerini alıyoruz.
+            // sonra bu id yi diğer fonksiyonda yakalıcaz
+            TempData["userId"] = id;
+
+            AppUser user = userManager.FindByIdAsync(id).Result;
+
+            ViewBag.userName = user.UserName;
+
+            IQueryable<AppRole> roles = roleManager.Roles;
+
+            // kullanıcının sahip olduğu rolleri arka planda list olarak dönecek.
+            // cast ettik as diyerek.
+            List<string> userroles = userManager.GetRolesAsync(user).Result as List<string>;
+
+            List<RoleAssignViewModel> roleAssignViewModels = new List<RoleAssignViewModel>();
+
+
+            // veritabanındaki rol benim veritabanımda var mı ?
+
+            foreach (var role in roles)
+            {
+                RoleAssignViewModel r = new RoleAssignViewModel();
+                r.RoleId = role.Id;
+                r.RoleName = role.Name;
+                if (userroles.Contains(role.Name))
+                {
+
+                    // checkbox işaretli mi olcak
+                    // eğer kullanıcı burdaki role sahipse checkbox işaretli olsun.
+                    r.Exist = true;
+                }
+                else
+                {
+
+                    r.Exist = false;
+                }
+                roleAssignViewModels.Add(r);// listemi dolduruyorum.
+
+            }
+
+
+            return View(roleAssignViewModels);
+
         }
+
+        [HttpPost]
+        public async Task<IActionResult> RoleAssign(List<RoleAssignViewModel> roleAssignViewModel)
+        {
+            AppUser user = userManager.FindByIdAsync(TempData["userId"].ToString()).Result;
+            foreach (var item in roleAssignViewModel)
+            {
+                // checkbox atanmış ise tıklanmış olduğu rolü kullanıcıya ata
+                if (item.Exist)
+
+                {
+                    await userManager.AddToRoleAsync(user, item.RoleName);
+
+                }
+                else
+                {
+                    // checkbox işaretli değilse rolü kaldır.
+                    await userManager.RemoveFromRoleAsync(user, item.RoleName);
+                }
+            }
+
+            return RedirectToAction("Users");
+        }
+
+       
 
     }
 }
