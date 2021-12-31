@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentitySystemCore.Enums;
 using IdentitySystemCore.Models;
@@ -247,6 +248,37 @@ namespace IdentitySystemCore.Controllers
 
         [Authorize(Policy = "ViolencePolicy")]
         public IActionResult ViolencePage()
+        {
+            return View();
+        }
+
+        // ilk kullanıcı giriş yaptığında kullaınıcı ile ilgili claimi veritabanında tutmam lazım
+        // Exchange sayfasına gitmeden önceki sayfamız.
+        public async Task<IActionResult> ExchangeRedirect()
+        {
+            // böyle bir claim var mı yok mu bunu buluyoruz
+            bool result = User.HasClaim(x => x.Type == "ExpireDateExchange");
+
+            // claim yoksa eklemem lazım, demekki kullanıcı ilk defa borsa grafikleri linkine tıklıyordur demektir.
+            // Kullanıcı tıklamıştır 10 gün sonra gelmiştir. varolan şeyi claims olarak eklemeyelim.
+            if (!result)
+            {
+                // 30 gün ileriye eklenmiş bir tarih ekliyorum.
+                // ilk kullanıcı bu sayfaya tıkladığı zaman veritabanında ExpireDateExchange olan valuesi ise şuanki tarihten 30 gün sonraki ileriki bir tarih olan bir tarih yazacam.
+                // 30 gün içerisinde erişebilir. 30 günü geçtikten sonra erişemez.
+                Claim ExpireDateExchange = new Claim("ExpireDateExchange", DateTime.Now.AddDays(30).Date.ToShortDateString(), ClaimValueTypes.String, "Internal");
+                await userManager.AddClaimAsync(CurrentUser, ExpireDateExchange);
+                await signInManager.SignOutAsync();
+                await signInManager.SignInAsync(CurrentUser, true);
+            }
+
+            return RedirectToAction("ExChange");
+        }
+
+        // Kullanıcı yetkiliyse girebileceği sayfa
+
+        [Authorize(Policy = "ExchangePolicy")]
+        public IActionResult Exchange()
         {
             return View();
         }
