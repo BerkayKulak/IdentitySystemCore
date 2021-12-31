@@ -53,6 +53,12 @@ namespace IdentitySystemCore.Controllers
                         return View(userlogin);
                     }
 
+                    if (userManager.IsEmailConfirmedAsync(user).Result == false)
+                    {
+                        ModelState.AddModelError("","Email Adresiniz Onaylanmamıştır. Lütfen epostanızı kontrol ediniz.");
+                        return View(userlogin);
+                    }
+
                     await signInManager.SignOutAsync();
 
                     //userlogin.RememberMe = cookienin gerçekten geçerli olup olmadığını kontrol edicez. checkboxtan kontrol edicez. işaretlersem true olur.
@@ -144,6 +150,21 @@ namespace IdentitySystemCore.Controllers
                     // eğer kullanıcı gerçekten başarılı bir şekilde kayıt olmuşsa 
                     // giriş ekranına yönlendiririm. biz kayıt olduktan sonra giriş ekranına yönlendireceğiz
                     // 2.senaryo
+
+                    // email doğrualama tokeni oluşturuyor. benim vermiş olduğum userdaki bilgiler ile token oluşturacak
+                    string confirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                    // kullanıcı linke tıkladığı zaman gideceği sayfa ConfirmEmail olacak
+                    string link = Url.Action("ConfirmEmail", "Home", new
+                    {
+                        userId = user.Id,
+                        token = confirmationToken
+
+
+                    }, protocol: HttpContext.Request.Scheme);
+
+                    Helper.EmailConfirmation.SendEmail(link, user.Email);
+
 
                     // LogIn ekranına gidecek
                     return RedirectToAction("LogIn");
@@ -266,6 +287,26 @@ namespace IdentitySystemCore.Controllers
             }
 
             return View(passwordResetViewModel);
+        }
+
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+
+            IdentityResult result = await userManager.ConfirmEmailAsync(user, token);
+
+            if (result.Succeeded)
+            {
+                ViewBag.status = "Email adressiniz onaylanmıştır. Login ekranından giriş yapabilirsiniz.";
+            }
+            else
+            {
+                ViewBag.status = "Bir hata meydana geldi. Lütfen daha sonra tekrar deneyiniz.";
+            }
+
+
+            return View();
+
         }
 
 
