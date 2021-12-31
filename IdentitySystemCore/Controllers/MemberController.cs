@@ -215,6 +215,10 @@ namespace IdentitySystemCore.Controllers
             {
                 ViewBag.message = "Bu sayfaya sadece şehir alanı ankara olan kullanıcılar erişebilir.";
             }
+            else if (returnUrl.Contains("Exchange"))
+            {
+                ViewBag.message = "30 günlük kullanım süreniz dolmuştur.";
+            }
             else
             {
                 ViewBag.message = "Bu sayfaya erişim izniniz yoktur. erişim izni için yöneticiyle görüşünüz.";
@@ -272,7 +276,7 @@ namespace IdentitySystemCore.Controllers
                 await signInManager.SignInAsync(CurrentUser, true);
             }
 
-            return RedirectToAction("ExChange");
+            return RedirectToAction("Exchange");
         }
 
         // Kullanıcı yetkiliyse girebileceği sayfa
