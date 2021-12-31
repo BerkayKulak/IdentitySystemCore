@@ -36,8 +36,27 @@ namespace IdentitySystemCore
 
             });
 
+            //claim bazlý yetkilendirme yapmak için bir tane policy eklememiz lazým.
+            // bunuda AddAuthorization servisi içerisinde ekliyorum.
+            // policy adým = AnkaraPolicy, sözleþme gibi düþün
+            //bunu belirtmiþ olduðum yerde kullanýcýnýn mutlaka city claimine sahip olmasý lazým
+            // ayný zamanda deðeride ankara olmasý lazým.
 
-            
+            services.AddAuthorization(opts =>
+            {
+                opts.AddPolicy("AnkaraPolicy", policy =>
+                {
+                    policy.RequireClaim("city", "ankara");
+                });
+
+                opts.AddPolicy("ViolencePolicy", policy =>
+                {
+                    policy.RequireClaim("violance");
+                });
+                
+            });
+
+
             //IdentityUseri' App user olarak miras aldýk.
             // IdentityRole ile miras alma iþlemi gerçekleþtirmediðimizden kullanýyoruz.
             //IdentityUseri' App user olarak miras aldýk.
