@@ -225,6 +225,9 @@ namespace IdentitySystemCore.Controllers
             return View();
         }
 
-
+        public IActionResult AnkaraPage()
+        {
+            return View();
+        }
     }
 }

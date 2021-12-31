@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IdentitySystemCore.CustomValidator;
 using IdentitySystemCore.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -94,6 +95,9 @@ namespace IdentitySystemCore
 
             });
 
+            // bu classýn her request iþleminde bu dönüþüm iþleminin gerçekleþmesi lazým. Cookileri alýyor claimslere dönüþtürüyor.
+            // Bu dönüþtürmenin her seferinde gerçekleþmesi için bunu yazýyoruz.
+            services.AddScoped<IClaimsTransformation, ClaimProvider.ClaimProvider>();
 
             services.AddMvc();
         }
