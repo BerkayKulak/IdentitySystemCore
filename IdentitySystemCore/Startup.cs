@@ -10,7 +10,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using IdentitySystemCore.CustomValidator;
 using IdentitySystemCore.Models;
+using IdentitySystemCore.Requirements;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +31,7 @@ namespace IdentitySystemCore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IAuthorizationHandler, ExpireDateExchangeHandler>();
             // istemiþ olduðu sýnýfýn bir nesne örneðini oluþturur.
             services.AddDbContext<AppIdentityDbContext>(opts =>
             {// appsettings.jsondan geliyor = "ConnectionStrings:DefaultConnectionString"
@@ -53,7 +56,12 @@ namespace IdentitySystemCore
                 {
                     policy.RequireClaim("violance");
                 });
-                
+
+                opts.AddPolicy("ExchangePolicy", policy =>
+                {
+                    policy.AddRequirements(new ExpireDateExchangeRequirement());
+                });
+
             });
 
 

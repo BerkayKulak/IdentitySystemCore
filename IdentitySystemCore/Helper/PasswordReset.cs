@@ -8,7 +8,7 @@ namespace IdentitySystemCore.Helper
 {
     public static class PasswordReset
     {
-        public static void PasswordResetSendEmail(string link)
+        public static void PasswordResetSendEmail(string link,string email)
         {
             MailMessage mail = new MailMessage();
 
@@ -19,7 +19,7 @@ namespace IdentitySystemCore.Helper
             mail.From = new MailAddress("kulakberkay15@gmail.com");
 
             // kime gidicek email burada belirtiyoruz
-            mail.To.Add("beko_468@hotmail.com");
+            mail.To.Add(email);
             mail.Subject = $"www.bıdıbıdı.com::Şifre Sıfırlama";
             mail.Body = "<h2>Şifrenizi yenilemek için lütfen aşağıdaki linke tıklayınız.</h2><hr/>";
             mail.Body += $"<a href = '{link}'> şifre yenileme linki </a>";
