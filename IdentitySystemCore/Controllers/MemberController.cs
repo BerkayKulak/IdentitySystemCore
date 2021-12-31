@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace IdentitySystemCore.Controllers
 {
 
-    //[Authorize]// membercontrollere sadece üyeler erişecek.
+    [Authorize]// membercontrollere sadece üyeler erişecek.
     public class MemberController : BaseController
     {
 
@@ -205,6 +205,23 @@ namespace IdentitySystemCore.Controllers
 
         public IActionResult AccessDenied()
         {
+            return View();
+        }
+
+     
+
+        [Authorize(Roles = "Manager")]
+        public IActionResult Manager()
+        {
+            // burdaki actiona artık sadece manager rolüne sahip olanlar girecek.
+            return View();
+        }
+
+
+        [Authorize(Roles ="Editor,Admin")]
+        public IActionResult Editor()
+        {
+            // burdaki actiona artık sadece editor rolüne sahip olanlar girecek.
             return View();
         }
 

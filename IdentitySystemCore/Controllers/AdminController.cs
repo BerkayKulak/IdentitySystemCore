@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 using IdentitySystemCore.Models;
 using IdentitySystemCore.ViewModels;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
 namespace IdentitySystemCore.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : BaseController
     {
 
@@ -184,7 +186,11 @@ namespace IdentitySystemCore.Controllers
             return RedirectToAction("Users");
         }
 
-       
+        public IActionResult Claims()
+        {
+            return View(User.Claims.ToList());
+        }
+
 
     }
 }
