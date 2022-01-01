@@ -69,7 +69,22 @@ namespace IdentitySystemCore.Controllers
             ViewBag.Gender = new SelectList(Enum.GetNames(typeof(Gender)));
             if (ModelState.IsValid)
             {
+
+
                 AppUser user = CurrentUser;
+
+                string phone = userManager.GetPhoneNumberAsync(user).Result;
+
+                if (phone != userViewModel.PhoneNumber)
+                {
+
+                    if (userManager.Users.Any(u => u.PhoneNumber == userViewModel.PhoneNumber))
+                    {
+                        ModelState.AddModelError("", "Bu Telefon Numarası Başka Üye Tarafından Kullanılmaktadır.");
+                        return View(userViewModel);
+                    }
+
+                }
 
                 if (userPicture != null && userPicture.Length > 0)
                 {
@@ -130,9 +145,7 @@ namespace IdentitySystemCore.Controllers
 
         }
 
-
-
-
+        
         public IActionResult PasswordChange()
         {
             return View();
@@ -237,7 +250,7 @@ namespace IdentitySystemCore.Controllers
         }
 
 
-        [Authorize(Roles ="Editor,Admin")]
+        [Authorize(Roles = "Editor,Admin")]
         public IActionResult Editor()
         {
             // burdaki actiona artık sadece editor rolüne sahip olanlar girecek.

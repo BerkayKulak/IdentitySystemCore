@@ -14,6 +14,7 @@ namespace IdentitySystemCore.ViewModels
         public string UserName { get; set; }
 
         [Display(Name = "Tel No:")]
+        [RegularExpression("^(0(\\d{3}) (\\d{3}) (\\d{2}) (\\d{2}))$", ErrorMessage = "Telefon Numarası Uygun Formatta Değil")]
         public string PhoneNumber { get; set; }
 
         [Required(ErrorMessage = "Email adresi gereklidir.")]
