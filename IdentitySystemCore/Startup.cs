@@ -81,7 +81,7 @@ namespace IdentitySystemCore
             services.AddIdentity<AppUser, AppRole>(opts => {
                 opts.User.RequireUniqueEmail = true;
                 opts.User.AllowedUserNameCharacters
-                    = "abcçdefghýijklmnoöpqrsþtuüvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._";
+                    = "abcçdefgðhýijklmnoöpqrsþtuüvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._";
                 opts.Password.RequiredLength = 4; // default olarak en az 4 karakter isticez.
                 opts.Password.RequireNonAlphanumeric = false; // yýldýz ya da nokta gibi karakter istemiyor
                 opts.Password.RequireLowercase = false; // küçük harf istemiyorum
