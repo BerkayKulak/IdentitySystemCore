@@ -317,6 +317,18 @@ namespace IdentitySystemCore.Controllers
 
         }
 
+
+        public IActionResult GoogleLogin(string ReturnUrl)
+        {
+            // döneceği sayfayı belirttik
+            string RedirectUrl = Url.Action("ExternalResponse", "Home", new { ReturnUrl });
+
+            var properties = signInManager.ConfigureExternalAuthenticationProperties("Google", RedirectUrl);
+
+            return new ChallengeResult("Google", properties);
+
+        }
+
         public async Task<IActionResult> ExternalResponse(string ReturnUrl = "/")
         {
             ExternalLoginInfo info = await signInManager.GetExternalLoginInfoAsync();
@@ -365,7 +377,12 @@ namespace IdentitySystemCore.Controllers
 
                         if (loginResult.Succeeded)
                         {
-                            await signInManager.SignInAsync(appUser, true);
+                            //await signInManager.SignInAsync(appUser, true);
+
+                            await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
+
+
+
                             return Redirect(ReturnUrl);
                         }
                         else
