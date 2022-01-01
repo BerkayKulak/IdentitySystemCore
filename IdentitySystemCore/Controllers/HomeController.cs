@@ -329,6 +329,17 @@ namespace IdentitySystemCore.Controllers
 
         }
 
+        public IActionResult MicrosoftLogin(string ReturnUrl)
+        {
+            // döneceği sayfayı belirttik
+            string RedirectUrl = Url.Action("ExternalResponse", "Home", new { ReturnUrl });
+
+            var properties = signInManager.ConfigureExternalAuthenticationProperties("Microsoft", RedirectUrl);
+
+            return new ChallengeResult("Microsoft", properties);
+
+        }
+
         public async Task<IActionResult> ExternalResponse(string ReturnUrl = "/")
         {
             ExternalLoginInfo info = await signInManager.GetExternalLoginInfoAsync();
@@ -369,31 +380,52 @@ namespace IdentitySystemCore.Controllers
                         appUser.UserName = info.Principal.FindFirst(ClaimTypes.Email).Value;
                     }
 
-                    IdentityResult createResult = await userManager.CreateAsync(appUser);
+                    // veritabanında böyle bir kullanıcı var mı y ok mu kontrol ediyorum
+                    AppUser user2 = await userManager.FindByEmailAsync(appUser.Email);
 
-                    if (createResult.Succeeded)
+                    if (user2 == null)
                     {
-                        IdentityResult loginResult = await userManager.AddLoginAsync(appUser, info);
+                        IdentityResult createResult = await userManager.CreateAsync(appUser);
 
-                        if (loginResult.Succeeded)
+                        if (createResult.Succeeded)
                         {
-                            //await signInManager.SignInAsync(appUser, true);
+                            IdentityResult loginResult = await userManager.AddLoginAsync(appUser, info);
 
-                            await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
+                            if (loginResult.Succeeded)
+                            {
+                                //await signInManager.SignInAsync(appUser, true);
+
+                                await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
 
 
 
-                            return Redirect(ReturnUrl);
+                                return Redirect(ReturnUrl);
+                            }
+                            else
+                            {
+                                AddModelError(loginResult);
+                            }
                         }
                         else
                         {
-                            AddModelError(loginResult);
+                            AddModelError(createResult);
                         }
                     }
+                    // kullanıcı var ise tabloya ekliyorum. email adresleri aynı sadece bazı değerler değişir
                     else
                     {
-                       AddModelError(createResult);
+                        IdentityResult loginResult = await userManager.AddLoginAsync(user2, info);
+
+                        await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
+
+                        return Redirect(ReturnUrl);
+
+
                     }
+
+                  
+
+
 
                 }
             }
