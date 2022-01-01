@@ -381,8 +381,17 @@ namespace IdentitySystemCore.Controllers
                 }
             }
 
-            return RedirectToAction("Error");
+            List<string> errors = ModelState.Values.SelectMany(x => x.Errors).Select(y => y.ErrorMessage).ToList();
 
+
+
+            return View("Error",errors);
+
+        }
+
+        public ActionResult Error()
+        {
+            return View();
         }
 
     }
