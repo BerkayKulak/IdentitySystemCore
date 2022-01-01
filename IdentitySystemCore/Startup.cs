@@ -64,6 +64,12 @@ namespace IdentitySystemCore
 
             });
 
+            services.AddAuthentication().AddFacebook(opts =>
+            {
+                opts.AppId = Configuration["Authentication:Facebook:AppId"];
+                opts.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
+            });
+
 
             //IdentityUseri' App user olarak miras aldýk.
             // IdentityRole ile miras alma iþlemi gerçekleþtirmediðimizden kullanýyoruz.

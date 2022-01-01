@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentitySystemCore.Models;
 using IdentitySystemCore.ViewModels;
@@ -9,16 +10,12 @@ using Microsoft.AspNetCore.Identity;
 
 namespace IdentitySystemCore.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
-        public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager) : base(userManager, signInManager)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
-        }
 
-        public UserManager<AppUser> userManager { get; }
-        public SignInManager<AppUser> signInManager { get; }
+        }
 
         public IActionResult Index()
         {
@@ -55,7 +52,7 @@ namespace IdentitySystemCore.Controllers
 
                     if (userManager.IsEmailConfirmedAsync(user).Result == false)
                     {
-                        ModelState.AddModelError("","Email Adresiniz Onaylanmamıştır. Lütfen epostanızı kontrol ediniz.");
+                        ModelState.AddModelError("", "Email Adresiniz Onaylanmamıştır. Lütfen epostanızı kontrol ediniz.");
                         return View(userlogin);
                     }
 
@@ -221,7 +218,7 @@ namespace IdentitySystemCore.Controllers
 
                 // www.bıdıbıdı.com/Home/ResetPasswordConfirm?userId = asdfd&token = adgsg
 
-                Helper.PasswordReset.PasswordResetSendEmail(passwordResetLink,user.Email);
+                Helper.PasswordReset.PasswordResetSendEmail(passwordResetLink, user.Email);
 
                 ViewBag.status = "successfull";
 
@@ -309,6 +306,84 @@ namespace IdentitySystemCore.Controllers
 
         }
 
+        public IActionResult FacebookLogin(string ReturnUrl)
+        {
+            // döneceği sayfayı belirttik
+            string RedirectUrl = Url.Action("ExternalResponse", "Home", new { ReturnUrl });
+
+            var properties = signInManager.ConfigureExternalAuthenticationProperties("Facebook", RedirectUrl);
+
+            return new ChallengeResult("Facebook", properties);
+
+        }
+
+        public async Task<IActionResult> ExternalResponse(string ReturnUrl = "/")
+        {
+            ExternalLoginInfo info = await signInManager.GetExternalLoginInfoAsync();
+
+            if (info == null)
+            {
+                return RedirectToAction("LogIn");
+            }
+            else
+            {
+                // cookileri kaç gün boyunca tutalım true dedik 60 gün tutacak
+                Microsoft.AspNetCore.Identity.SignInResult signInResult = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
+
+                if (signInResult.Succeeded)
+                {
+                    return Redirect(ReturnUrl);
+                }
+
+                // kullanıcı ilk kez facebook butonuna basıyorsa
+                else
+                {
+                    AppUser appUser = new AppUser();
+
+                    appUser.Email = info.Principal.FindFirst(ClaimTypes.Email).Value;
+
+                    string ExternalUserId = info.Principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                    if (info.Principal.HasClaim(x => x.Type == ClaimTypes.Name))
+                    {
+                        string userName = info.Principal.FindFirst(ClaimTypes.Name).Value;
+
+                        userName = userName.Replace(" ", "-").ToLower() + ExternalUserId.Substring(0, 5).ToString();
+
+                        appUser.UserName = userName;
+                    }
+                    else
+                    {
+                        appUser.UserName = info.Principal.FindFirst(ClaimTypes.Email).Value;
+                    }
+
+                    IdentityResult createResult = await userManager.CreateAsync(appUser);
+
+                    if (createResult.Succeeded)
+                    {
+                        IdentityResult loginResult = await userManager.AddLoginAsync(appUser, info);
+
+                        if (loginResult.Succeeded)
+                        {
+                            await signInManager.SignInAsync(appUser, true);
+                            return Redirect(ReturnUrl);
+                        }
+                        else
+                        {
+                            AddModelError(loginResult);
+                        }
+                    }
+                    else
+                    {
+                       AddModelError(createResult);
+                    }
+
+                }
+            }
+
+            return RedirectToAction("Error");
+
+        }
 
     }
 }
