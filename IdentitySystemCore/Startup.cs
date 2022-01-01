@@ -72,6 +72,10 @@ namespace IdentitySystemCore
             {
                 opts.ClientId = Configuration["Authentication:Google:ClientId"];
                 opts.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+            }).AddMicrosoftAccount(opts =>
+            {
+                opts.ClientId = Configuration["Authentication:Microsoft:ClientId"];
+                opts.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
             });
 
 
