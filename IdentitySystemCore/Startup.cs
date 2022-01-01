@@ -68,6 +68,10 @@ namespace IdentitySystemCore
             {
                 opts.AppId = Configuration["Authentication:Facebook:AppId"];
                 opts.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
+            }).AddGoogle(opts =>
+            {
+                opts.ClientId = Configuration["Authentication:Google:ClientId"];
+                opts.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
             });
 
 
