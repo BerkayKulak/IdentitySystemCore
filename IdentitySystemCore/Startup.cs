@@ -146,16 +146,15 @@ namespace IdentitySystemCore
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
 
-            app.UseDeveloperExceptionPage();
-            app.UseStatusCodePages();
-            app.UseStaticFiles();
+                // web uygulamamýzý çalýþtýrdýðýmýz zaman tarayýcý burdan refresh iþlemi gerçekleþtirmek için
+                app.UseBrowserLink();
+            }
 
 
-            //if (env.IsDevelopment())
-            //{
-            //    app.UseDeveloperExceptionPage();
-            //}
             //else
             //{
             //    app.UseExceptionHandler("/Error");
@@ -165,6 +164,16 @@ namespace IdentitySystemCore
 
             //app.UseHttpsRedirection();
             //app.UseStaticFiles();
+
+            //app.UseDeveloperExceptionPage();
+
+
+            app.UseStatusCodePages();
+            app.UseStaticFiles();
+
+
+            
+        
 
             app.UseRouting();
 
