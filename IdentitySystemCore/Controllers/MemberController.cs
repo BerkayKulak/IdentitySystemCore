@@ -16,14 +16,15 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace IdentitySystemCore.Controllers
 {
+    
 
     [Authorize]// membercontrollere sadece üyeler erişecek.
     public class MemberController : BaseController
     {
-
-        public MemberController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager) : base(userManager, signInManager)
+        private readonly TwoFactorService.TwoFactorService _twoFactorService;
+        public MemberController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, TwoFactorService.TwoFactorService twoFactorService) : base(userManager, signInManager)
         {
-
+            _twoFactorService = twoFactorService;
         }
 
 
@@ -300,6 +301,24 @@ namespace IdentitySystemCore.Controllers
             return View();
         }
 
+        public async Task<IActionResult> TwoFactorWithAuthenticator()
+        {
+            string unformattedkey = await userManager.GetAuthenticatorKeyAsync(CurrentUser);
+            if (string.IsNullOrEmpty(unformattedkey))
+            {
+                await userManager.ResetAuthenticatorKeyAsync(CurrentUser);
+
+                unformattedkey = await userManager.GetAuthenticatorKeyAsync(CurrentUser);
+            }
+
+            AuthenticatorViewModel authenticatorViewModel = new AuthenticatorViewModel();
+
+            authenticatorViewModel.SharedKey = unformattedkey;
+            authenticatorViewModel.AuthenticatorUri =
+                _twoFactorService.GenerateQrCodeUri(CurrentUser.Email, unformattedkey);
+
+            return View(authenticatorViewModel);
+        }
 
         public IActionResult TwoFactorAuth()
         {
