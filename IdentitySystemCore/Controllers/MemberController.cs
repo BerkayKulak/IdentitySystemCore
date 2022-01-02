@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
 
 namespace IdentitySystemCore.Controllers
 {
@@ -323,8 +324,29 @@ namespace IdentitySystemCore.Controllers
         [HttpPost]
         public async Task<IActionResult> TwoFactorWithAuthenticator(AuthenticatorViewModel authenticatorViewModel)
         {
+            var verificationCode = authenticatorViewModel.VerificationCode.Replace(" ", string.Empty)
+                .Replace("-", string.Empty);
 
-            return View();
+            var is2FATokenValid = await userManager.VerifyTwoFactorTokenAsync(CurrentUser,
+                userManager.Options.Tokens.AuthenticatorTokenProvider, verificationCode);
+            if (is2FATokenValid)
+            {
+                CurrentUser.TwoFactorEnabled = true;
+                CurrentUser.TwoFactor = (sbyte) TwoFactor.MicrosoftGoogle;
+
+                var recoveryCodes = await userManager.GenerateNewTwoFactorRecoveryCodesAsync(CurrentUser, 5);
+                TempData["recoveryCodes"] = recoveryCodes;
+                TempData["message"] = "İki Adımlı Kimlik Doğrulama Tipiniz Microsoft/Google Olarak Belirlenmiştir.";
+
+                return RedirectToAction("TwoFactorAuth");
+            }
+            else
+            {
+                ModelState.AddModelError("","Girdiğiniz Doğrulama Kodu Yanlıştır");
+                return View(authenticatorViewModel);
+            }
+
+ 
         }
 
         public IActionResult TwoFactorAuth()

@@ -14,7 +14,7 @@ namespace IdentitySystemCore.Enums
         Phone = 1,
         [Display(Name = "Email ile Kimlik Doğrulama")]
         Email = 2,
-        [Display(Name = "Microsoft/Goole Authtenticator İle Kimlik Doğrulama")]
+        [Display(Name = "Microsoft/Google Authtenticator İle Kimlik Doğrulama")]
         MicrosoftGoogle =3
     }
 }
