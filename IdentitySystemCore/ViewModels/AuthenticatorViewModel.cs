@@ -15,6 +15,7 @@ namespace IdentitySystemCore.ViewModels
         [Display(Name = "Doğrulama Kodunuz")]
         [Required(ErrorMessage = "Doğrulama Kodu Gereklidir")]
         public string VerificationCode { get; set; }
+        [Display(Name = "İki Adımlı Kimlik Doğrulama Tipi")]
         public TwoFactor TwoFactorType { get; set; }
 
     }
