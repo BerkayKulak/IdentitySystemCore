@@ -20,6 +20,7 @@ namespace IdentitySystemCore.Models
 
         public int Gender { get; set; }
 
+        public sbyte? TwoFactor { get; set; }   
 
 
     }
