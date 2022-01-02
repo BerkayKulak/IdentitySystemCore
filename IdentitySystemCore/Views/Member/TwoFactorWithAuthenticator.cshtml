@@ -1,0 +1,35 @@
+﻿@model AuthenticatorViewModel
+@{
+    ViewData["Title"] = "TwoFactorWithAuthenticator";
+    Layout = "~/Views/Member/_MemberLayout.cshtml";
+}
+
+<h2>İki Adımlı Kimlik Doğrulama</h2>
+<div class="row">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            1.Adım: Aşağıdaki Barkodu Telefonunuzdaki Google/Microsoft Authenticator Uygulamasına Taratınız. Veya
+            Aşağıdaki Kodu Telefona Giriniz.
+        </div>
+        <strong class="text-danger">Key:</strong><strong class="text-primary">@Model.SharedKey</strong>
+        
+        <div class="alert alert-info mt-3">
+            2.Adım: Telefonunuzdaki Kodu Aşağıdaki Alana Giriniz.
+        </div>
+        <form asp-action="TwoFactorWithAuthenticator" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger">
+
+            </div>
+            <div class="form-group">
+                <label asp-for="VerificationCode"></label>
+                <input asp-for="VerificationCode" class="form-control"/>
+                <span asp-validation-for="VerificationCode"></span>
+                <input type="hidden" asp-for="AuthenticatorUri"/>
+                <input type="hidden" asp-for="SharedKey"/>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Aktif Et" class="btn btn-success"/>
+            </div>
+        </form>
+    </div>
+</div>
