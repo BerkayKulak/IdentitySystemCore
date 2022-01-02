@@ -31,6 +31,7 @@ namespace IdentitySystemCore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<TwoFactorService.TwoFactorService>();
             services.AddTransient<IAuthorizationHandler, ExpireDateExchangeHandler>();
             // istemiþ olduðu sýnýfýn bir nesne örneðini oluþturur.
             services.AddDbContext<AppIdentityDbContext>(opts =>
