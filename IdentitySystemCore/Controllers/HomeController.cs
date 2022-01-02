@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentitySystemCore.Enums;
 using IdentitySystemCore.Models;
 using IdentitySystemCore.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -27,7 +28,7 @@ namespace IdentitySystemCore.Controllers
             return View();
         }
 
-        public IActionResult LogIn(string ReturnUrl)
+        public IActionResult LogIn(string ReturnUrl="/")
         {
             TempData["ReturnUrl"] = ReturnUrl; // actionlar içinde veriler tutabiliriz. sayfalar arası
             return View();
@@ -80,6 +81,7 @@ namespace IdentitySystemCore.Controllers
                         }
                         else
                         {
+
                             return Redirect(TempData["ReturnUrl"].ToString());
 
                         }
@@ -119,6 +121,21 @@ namespace IdentitySystemCore.Controllers
             return View(userlogin);
         }
 
+        public async Task<IActionResult> TwoFactorLogin(string ReturnUrl = "/")
+        {
+            var user = await signInManager.GetTwoFactorAuthenticationUserAsync();
+            TempData["ReturnUrl"] = ReturnUrl;
+
+            switch ((TwoFactor)user.TwoFactor)
+            {
+                case TwoFactor.MicrosoftGoogle:
+                        
+                        break;
+            }
+
+            return View(new TwoFactorLoginViewModel(){TwoFactorType = (TwoFactor)user.TwoFactor,isRecoverCode = false,isRememberMe = false,VerificationCode = string.Empty});
+
+        }
 
         public IActionResult SignUp()
         {
@@ -141,7 +158,7 @@ namespace IdentitySystemCore.Controllers
 
                 if (userManager.Users.Any(u => u.PhoneNumber == userViewModel.PhoneNumber))
                 {
-                    ModelState.AddModelError("","Bu Telefon Numarası kayıtlıdır.");
+                    ModelState.AddModelError("", "Bu Telefon Numarası kayıtlıdır.");
                     return View(userViewModel);
                 }
 
@@ -449,7 +466,7 @@ namespace IdentitySystemCore.Controllers
 
 
 
-            return View("Error",errors);
+            return View("Error", errors);
 
         }
 
