@@ -77,7 +77,7 @@ namespace IdentitySystemCore.Controllers
 
                         if (result.RequiresTwoFactor)
                         {
-                            RedirectToAction("TwoFactorLogIn");
+                            return RedirectToAction("TwoFactorLogIn");
                         }
                         else
                         {
@@ -121,7 +121,8 @@ namespace IdentitySystemCore.Controllers
             return View(userlogin);
         }
 
-        public async Task<IActionResult> TwoFactorLogin(string ReturnUrl = "/")
+        [HttpGet]
+        public async Task<IActionResult> TwoFactorLogIn(string ReturnUrl = "/")
         {
             var user = await signInManager.GetTwoFactorAuthenticationUserAsync();
             TempData["ReturnUrl"] = ReturnUrl;
@@ -136,6 +137,48 @@ namespace IdentitySystemCore.Controllers
             return View(new TwoFactorLoginViewModel(){TwoFactorType = (TwoFactor)user.TwoFactor,isRecoverCode = false,isRememberMe = false,VerificationCode = string.Empty});
 
         }
+
+        [HttpPost]
+        public async Task<IActionResult> TwoFactorLogIn(TwoFactorLoginViewModel twoFactorLoginViewModel)
+        {
+            var user = await signInManager.GetTwoFactorAuthenticationUserAsync();
+            ModelState.Clear();
+            bool isSuccessAuth = false;
+            if ((TwoFactor) user.TwoFactor == TwoFactor.MicrosoftGoogle)
+            {
+                Microsoft.AspNetCore.Identity.SignInResult result;
+
+                if (twoFactorLoginViewModel.isRecoverCode)
+                {
+                    result = await signInManager.TwoFactorRecoveryCodeSignInAsync(twoFactorLoginViewModel
+                        .VerificationCode);
+                }
+                else
+                {
+                    result = await signInManager.TwoFactorAuthenticatorSignInAsync(
+                        twoFactorLoginViewModel.VerificationCode, twoFactorLoginViewModel.isRememberMe, false);
+                }
+
+                if (result.Succeeded)
+                {
+                    isSuccessAuth = true;
+                }
+                else
+                {
+                    ModelState.AddModelError("","Doğrulama kodu yanlış");
+                }
+            }
+
+            if (isSuccessAuth)
+            {
+                return Redirect(TempData["ReturnUrl"].ToString());
+            }
+
+            twoFactorLoginViewModel.TwoFactorType = (TwoFactor) user.TwoFactor;
+
+            return View(twoFactorLoginViewModel);
+        }
+
 
         public IActionResult SignUp()
         {
