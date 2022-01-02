@@ -1,7 +1,7 @@
 ﻿@using System.Diagnostics
 @model TwoFactorLoginViewModel
 @{
-    ViewData["Title"] = "TwoFactorLogin";
+    ViewData["Title"] = "TwoFactorLogIn";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -9,7 +9,7 @@
     <div class="col-md-4 offset-md-4">
         <h4>İki Adımlı Kimlik Doğrulama</h4>
         <hr />
-        <form asp-action="TwoFactorLogin" method="post">
+        <form asp-action="TwoFactorLogIn" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="VerificationCode"></label>
