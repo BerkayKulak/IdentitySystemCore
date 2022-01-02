@@ -16,16 +16,16 @@
                 <select class="form-control" asp-for="TwoFactorType" asp-items="Html.GetEnumSelectList<TwoFactor>()"></select>
             </div>
             <div class="form-group">
-                <input type="submit" value="Güncelle" class="btn btn-success"/>
+                <input type="submit" value="Güncelle" class="btn btn-success" />
             </div>
         </form>
     </div>
     @if (ViewBag.warning != null)
     {
         <div class="col-md-12">
-        <div class="alert alert-warning">
-            @ViewBag.warning
-        </div>
+            <div class="alert alert-warning">
+                @ViewBag.warning
+            </div>
         </div>
     }
     @if (TempData["message"] != null)
@@ -36,5 +36,22 @@
             </div>
         </div>
     }
+
+@if (TempData["recoveryCodes"] != null)
+{
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            Aşağıdaki Kodları Güvenli Bir Yerde Saklayınız. Microsoft Google Authenticator Uygulamasını Kullanamadığınız Durumlarda
+            Bu Kurtarma Kodlarını Kullanabilirsiniz.
+        </div>
+        <div class="alert alert-secondary">
+            @foreach (var item in TempData["recoveryCodes"] as string[])
+            {
+                <strong>@item</strong>
+            }
+        </div>
+    </div>
+}
+
 </div>
 
