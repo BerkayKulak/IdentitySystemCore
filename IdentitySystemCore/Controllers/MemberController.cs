@@ -320,6 +320,13 @@ namespace IdentitySystemCore.Controllers
             return View(authenticatorViewModel);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> TwoFactorWithAuthenticator(AuthenticatorViewModel authenticatorViewModel)
+        {
+
+            return View();
+        }
+
         public IActionResult TwoFactorAuth()
         {
             return View(new AuthenticatorViewModel(){TwoFactorType = (TwoFactor)CurrentUser.TwoFactor});
@@ -335,11 +342,14 @@ namespace IdentitySystemCore.Controllers
                     CurrentUser.TwoFactor = (sbyte)TwoFactor.None;
                     TempData["message"] = "İki Adımlı Kimlik Doğrulama Tipiniz Hiçbiri Olarak Belirlenmiştir.";
                     break;
+                case TwoFactor.MicrosoftGoogle:
+                    return RedirectToAction("TwoFactorWithAuthenticator");
+                   
             }
-
 
             await userManager.UpdateAsync(CurrentUser);
             return View(authenticatorViewModel);
         }
+
     }
 }
