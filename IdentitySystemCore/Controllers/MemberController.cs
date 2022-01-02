@@ -299,5 +299,11 @@ namespace IdentitySystemCore.Controllers
         {
             return View();
         }
+
+
+        public IActionResult TwoFactorAuth()
+        {
+            return View();
+        }
     }
 }
