@@ -305,5 +305,22 @@ namespace IdentitySystemCore.Controllers
         {
             return View(new AuthenticatorViewModel(){TwoFactorType = (TwoFactor)CurrentUser.TwoFactor});
         }
+
+        [HttpPost]
+        public async Task<IActionResult> TwoFactorAuth(AuthenticatorViewModel authenticatorViewModel)
+        {
+            switch (authenticatorViewModel.TwoFactorType)   
+            {
+                case TwoFactor.None:
+                    CurrentUser.TwoFactorEnabled = false;
+                    CurrentUser.TwoFactor = (sbyte)TwoFactor.None;
+                    TempData["message"] = "İki Adımlı Kimlik Doğrulama Tipiniz Hiçbiri Olarak Belirlenmiştir.";
+                    break;
+            }
+
+
+            await userManager.UpdateAsync(CurrentUser);
+            return View(authenticatorViewModel);
+        }
     }
 }
