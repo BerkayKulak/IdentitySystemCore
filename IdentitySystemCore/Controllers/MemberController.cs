@@ -242,7 +242,7 @@ namespace IdentitySystemCore.Controllers
 
 
 
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Admin,Manager")]
         public IActionResult Manager()
         {
             // burdaki actiona artık sadece manager rolüne sahip olanlar girecek.
