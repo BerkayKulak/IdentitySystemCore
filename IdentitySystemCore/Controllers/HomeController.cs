@@ -56,23 +56,35 @@ namespace IdentitySystemCore.Controllers
                         return View(userlogin);
                     }
 
-                    await signInManager.SignOutAsync();
+                    // await signInManager.SignOutAsync();
 
                     //userlogin.RememberMe = cookienin gerçekten geçerli olup olmadığını kontrol edicez. checkboxtan kontrol edicez. işaretlersem true olur.
                     // benim startuptaki 60 gün geçerli olacak
-                    Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(user, userlogin.Password, userlogin.RememberMe, false);
+                    // Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(user, userlogin.Password, userlogin.RememberMe, false);
 
-                    if (result.Succeeded)
+                    bool userCheck = await userManager.CheckPasswordAsync(user, userlogin.Password);
+
+                    if (userCheck)
                     {
                         // başarılı giriş yaptığımız için AccessFailedCount değerini 0 lıcak
                         await userManager.ResetAccessFailedCountAsync(user);
 
-                        if (TempData["ReturnUrl"] != null)
+                        await signInManager.SignOutAsync();
+
+                        var result = await signInManager.PasswordSignInAsync(user, userlogin.Password,
+                            userlogin.RememberMe, false);
+
+                        if (result.RequiresTwoFactor)
+                        {
+                            RedirectToAction("TwoFactorLogIn");
+                        }
+                        else
                         {
                             return Redirect(TempData["ReturnUrl"].ToString());
+
                         }
-                        return RedirectToAction("Index", "Member");
                     }
+
                     else
                     {
                         // başarısız girişte 1 artıcak
@@ -142,8 +154,6 @@ namespace IdentitySystemCore.Controllers
 
                 // şuanda şifreyi eklemicem çünkü plan text olarak gelir. bunu hashliceğimizden getirmiyoruz.
                 // await derkei bak kardeşim bu metod yani bu satır bitmeden alt satıra geçme, sonucu ata ve alta geç
-
-
                 // IdentityResult bize = üye oluştururken bir hata olursa biz bunu result üzerinden yakalayabileceğiz.
 
 
