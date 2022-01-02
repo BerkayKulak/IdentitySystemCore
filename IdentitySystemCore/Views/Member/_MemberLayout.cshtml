@@ -16,7 +16,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-        <a class="navbar-brand" href="#">Navbar</a>
+        <a class="navbar-brand" asp-action="Index" asp-controller="Member">Navbar</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -31,6 +31,9 @@
         </div>
         <div class="collapse navbar-collapse" id="navbarNav">
             <a class="btn btn-info" asp-action="Manager" asp-controller="Member">Manager Ana Sayfa</a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <a class="btn btn-info" asp-action="TwoFactorAuth" asp-controller="Member">Two Factor Doğrulama</a>
         </div>
       
     </div>
@@ -51,7 +54,8 @@
             <a class="btn btn-danger btn-block" asp-action="ViolencePage" asp-controller="Member">Şiddet Sayfası</a>
             <a class="btn btn-info btn-block" asp-action="PasswordChange" asp-controller="Member">Şifre Değiştirme</a>
             <a class="btn btn-danger btn-block" asp-action="UserEdit" asp-controller="Member">Bilgi Güncelleme</a>
-            <a class="btn btn-info btn-block" asp-action="LogOut" asp-controller="Member" asp-route-returnUrl="/Home/Index">Çıkış Yap</a>
+            <a class="btn btn-info btn-block" asp-action="TwoFactorAuth" asp-controller="Member">Two Factor Doğrulama</a>
+            <a class="btn btn-danger btn-block" asp-action="LogOut" asp-controller="Member" asp-route-returnUrl="/Home/Index">Çıkış Yap</a>
         </div>
     </div>
 
