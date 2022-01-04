@@ -14,6 +14,7 @@ namespace IdentitySystemCore.TagHelpers
     public class UserRolesName : TagHelper
     {
         public UserManager<AppUser> userManager { get; set; }
+     
 
         public UserRolesName(UserManager<AppUser> userManager)
         {
