@@ -6,16 +6,21 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentitySystemCore.Enums;
 using IdentitySystemCore.Models;
+using IdentitySystemCore.TwoFactorService;
 using IdentitySystemCore.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
 namespace IdentitySystemCore.Controllers
 {
     public class HomeController : BaseController
     {
-        public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager) : base(userManager, signInManager)
+        private readonly TwoFactorService.TwoFactorService _twoFactorService;
+        private readonly EmailSender _emailSender;
+        public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, TwoFactorService.TwoFactorService twoFactorService, EmailSender emailSender) : base(userManager, signInManager)
         {
-
+            _twoFactorService = twoFactorService;
+            _emailSender = emailSender;
         }
 
         public IActionResult Index()
@@ -130,8 +135,20 @@ namespace IdentitySystemCore.Controllers
             switch ((TwoFactor)user.TwoFactor)
             {
                 case TwoFactor.MicrosoftGoogle:
-                        
-                        break;
+                    break;
+                case TwoFactor.Email:
+                    if (_twoFactorService.TimeLeft(HttpContext) == 0)
+                    {
+                        return RedirectToAction("LogIn");
+                    }
+
+                    ViewBag.timeleft = _twoFactorService.TimeLeft(HttpContext);
+
+                    HttpContext.Session.SetString("codeverification",_emailSender.Send(user.Email));
+
+                    break;
+
+
             }
 
             return View(new TwoFactorLoginViewModel(){TwoFactorType = (TwoFactor)user.TwoFactor,isRecoverCode = false,isRememberMe = false,VerificationCode = string.Empty});
