@@ -143,6 +143,15 @@ namespace IdentitySystemCore
             // Bu dönüþtürmenin her seferinde gerçekleþmesi için bunu yazýyoruz.
             services.AddScoped<IClaimsTransformation, ClaimProvider.ClaimProvider>();
 
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                // her bir oturum açtýðýmýzda sessionda bizim için bir id yaratýlýr. ÝD de cookide tutulur. 
+                // session id cookide tutulur. session id üzerinden bilginin kime ait olduðu kaydedilir.
+                options.Cookie.Name = "MainSession";
+
+            });
+
             services.AddMvc();
         }
 
@@ -182,7 +191,7 @@ namespace IdentitySystemCore
 
             app.UseAuthentication();
             app.UseAuthorization();
-          
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {
