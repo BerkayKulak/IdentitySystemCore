@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using IdentitySystemCore.CustomValidator;
 using IdentitySystemCore.Models;
 using IdentitySystemCore.Requirements;
+using IdentitySystemCore.TwoFactorService;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -31,6 +32,7 @@ namespace IdentitySystemCore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<TwoFactorOptions>(Configuration.GetSection("TwoFactorOptions"));
             services.AddScoped<TwoFactorService.TwoFactorService>();
             services.AddTransient<IAuthorizationHandler, ExpireDateExchangeHandler>();
             // istemiþ olduðu sýnýfýn bir nesne örneðini oluþturur.
