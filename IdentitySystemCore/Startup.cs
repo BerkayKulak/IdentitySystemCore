@@ -35,6 +35,7 @@ namespace IdentitySystemCore
             services.Configure<TwoFactorOptions>(Configuration.GetSection("TwoFactorOptions"));
             services.AddScoped<TwoFactorService.TwoFactorService>();
             services.AddScoped<EmailSender>();
+            services.AddScoped<SmsSender>();
             services.AddTransient<IAuthorizationHandler, ExpireDateExchangeHandler>();
             // istemiþ olduðu sýnýfýn bir nesne örneðini oluþturur.
             services.AddDbContext<AppIdentityDbContext>(opts =>
