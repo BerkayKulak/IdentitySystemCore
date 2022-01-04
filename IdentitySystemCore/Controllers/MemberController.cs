@@ -379,5 +379,6 @@ namespace IdentitySystemCore.Controllers
             return View(authenticatorViewModel);
         }
 
+       
     }
 }
