@@ -364,6 +364,12 @@ namespace IdentitySystemCore.Controllers
                     CurrentUser.TwoFactor = (sbyte)TwoFactor.None;
                     TempData["message"] = "İki Adımlı Kimlik Doğrulama Tipiniz Hiçbiri Olarak Belirlenmiştir.";
                     break;
+                case TwoFactor.Email:
+                    CurrentUser.TwoFactorEnabled = true;
+                    CurrentUser.TwoFactor = (sbyte) TwoFactor.Email;
+                    TempData["message"] = "İki Adımlı Kimlik Doğrulama Tipiniz Email Olarak Belirlenmiştir.";
+                    break;
+                    
                 case TwoFactor.MicrosoftGoogle:
                     return RedirectToAction("TwoFactorWithAuthenticator");
                    
