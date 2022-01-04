@@ -17,10 +17,12 @@ namespace IdentitySystemCore.Controllers
     {
         private readonly TwoFactorService.TwoFactorService _twoFactorService;
         private readonly EmailSender _emailSender;
-        public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, TwoFactorService.TwoFactorService twoFactorService, EmailSender emailSender) : base(userManager, signInManager)
+        private readonly SmsSender _smsSender;
+        public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, TwoFactorService.TwoFactorService twoFactorService, EmailSender emailSender, SmsSender smsSender) : base(userManager, signInManager)
         {
             _twoFactorService = twoFactorService;
             _emailSender = emailSender;
+            _smsSender = smsSender;
         }
 
         public IActionResult Index()
@@ -150,6 +152,18 @@ namespace IdentitySystemCore.Controllers
                     ViewBag.timeleft = _twoFactorService.TimeLeft(HttpContext);
 
                     HttpContext.Session.SetString("codeverification",_emailSender.Send(user.Email));
+
+                    break;
+                case TwoFactor.Phone:
+
+                    if (_twoFactorService.TimeLeft(HttpContext) == 0)
+                    {
+                        return RedirectToAction("LogIn");
+                    }
+
+                    ViewBag.timeleft = _twoFactorService.TimeLeft(HttpContext);
+
+                    HttpContext.Session.SetString("codeverification", _smsSender.Send(user.PhoneNumber));
 
                     break;
 
