@@ -364,6 +364,17 @@ namespace IdentitySystemCore.Controllers
                     CurrentUser.TwoFactor = (sbyte)TwoFactor.None;
                     TempData["message"] = "İki Adımlı Kimlik Doğrulama Tipiniz Hiçbiri Olarak Belirlenmiştir.";
                     break;
+                case TwoFactor.Phone:
+                    if (string.IsNullOrEmpty(CurrentUser.PhoneNumber))
+                    {
+                        ViewBag.warning = "Telefon Numaranız Belirtilmemiştir. Lütfen Kullanıcı Güncelleme Sayfasından Telefon Numaranızı Belirtiniz.";
+                    }
+
+                    CurrentUser.TwoFactorEnabled = true;
+                    CurrentUser.TwoFactor = (sbyte)TwoFactor.Phone;
+                    TempData["message"] = "İki Adımlı Kimlik Doğrulama Tipiniz Telefon Olarak Belirlenmiştir.";
+                    break;
+                    
                 case TwoFactor.Email:
                     CurrentUser.TwoFactorEnabled = true;
                     CurrentUser.TwoFactor = (sbyte) TwoFactor.Email;
