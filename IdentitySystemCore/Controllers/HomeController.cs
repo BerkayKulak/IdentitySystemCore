@@ -86,7 +86,7 @@ namespace IdentitySystemCore.Controllers
                             {
                                 HttpContext.Session.Remove("currentTime");
                             }
-                            return RedirectToAction("TwoFactorLogIn");
+                            return RedirectToAction("TwoFactorLogIn","Home",new {ReturnUrl = TempData["ReturnUrl"].ToString() });
                             
                         }
                         else
@@ -166,6 +166,7 @@ namespace IdentitySystemCore.Controllers
             var user = await signInManager.GetTwoFactorAuthenticationUserAsync();
             ModelState.Clear();
             bool isSuccessAuth = false;
+
             if ((TwoFactor) user.TwoFactor == TwoFactor.MicrosoftGoogle)
             {
                 Microsoft.AspNetCore.Identity.SignInResult result;
@@ -188,6 +189,24 @@ namespace IdentitySystemCore.Controllers
                 else
                 {
                     ModelState.AddModelError("","Doğrulama kodu yanlış");
+                }
+            }
+
+            else if (user.TwoFactor == (sbyte) TwoFactor.Email || user.TwoFactor == (sbyte) TwoFactor.Phone)
+            {
+                ViewBag.timeleft = _twoFactorService.TimeLeft(HttpContext);
+                if (twoFactorLoginViewModel.VerificationCode == HttpContext.Session.GetString("codeverification"))
+                {
+                    await signInManager.SignOutAsync();
+                    await signInManager.SignInAsync(user, twoFactorLoginViewModel.isRememberMe);
+                    HttpContext.Session.Remove("currentTime");
+                    HttpContext.Session.Remove("codeverification");
+                    isSuccessAuth = true;
+
+                }
+                else
+                {
+                    ModelState.AddModelError("","Doğrulama Kodu Yanlış");
                 }
             }
 
