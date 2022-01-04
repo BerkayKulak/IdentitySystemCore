@@ -82,7 +82,12 @@ namespace IdentitySystemCore.Controllers
 
                         if (result.RequiresTwoFactor)
                         {
+                            if (user.TwoFactor == (int) TwoFactor.Email || user.TwoFactor == (int) TwoFactor.Phone)
+                            {
+                                HttpContext.Session.Remove("currentTime");
+                            }
                             return RedirectToAction("TwoFactorLogIn");
+                            
                         }
                         else
                         {
